@@ -1,6 +1,12 @@
 from pathlib import Path
 import logging
 
+import numpy as np
+
+import imageio.v3 as iio
+from torchvision import tv_tensors
+MAX_8BIT = 255
+
 def validate_path(path_str: str) -> Path:
     path = Path(path_str)
     if path.exists():
@@ -24,3 +30,13 @@ def get_logger(name):
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     return logger
+
+def read_8bit_image(path:Path):
+    image = iio.imread(path)
+    if image.ndim == 2:
+        image = np.stack([image]*3, axis=-1)
+
+    image = image.astype('float')
+    image = image/255
+    image = image.transpose(2, 0, 1)
+    return tv_tensors.Image(image)
