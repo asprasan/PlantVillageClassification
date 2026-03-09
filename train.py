@@ -47,7 +47,7 @@ def main(args):
                                   lr=config["lr"],
                                   weight_decay=0.01)
     loss_fn = torch.nn.CrossEntropyLoss()
-
+    best_acc = 0.0
     for epoch in range(config["num_epochs"]):
         # training loop
         model.train()
@@ -63,10 +63,9 @@ def main(args):
             loss.backward()
             optimizer.step()
 
-            if (k+1)%10 == 0:
+            if (k+1)%100 == 0:
                 logger.info(f"Loss at epoch {epoch}/{config['num_epochs']}: {loss:0.4f}")
-                break
-        
+
         # validation loop
         logger.info(f"Validating at epoch {epoch}")
         with torch.no_grad():
@@ -83,8 +82,18 @@ def main(args):
                 _, pred_labels = torch.max(pred, 1)
                 total += labels.size(0)
                 correct += (pred_labels == labels).sum().item()
-            logger.info(f"Accuracy at epoch {epoch} = {correct*100/total}%")
-    return
+            accuracy = correct / total
+            logger.info(f"Accuracy at epoch {epoch} = {accuracy*100}%")
+            if best_acc <= accuracy:
+                # save the model with the best accuracy
+                logger.info(f"Saving model at epoch {epoch} with best accuracy {accuracy}")
+                model_dict = {'model': model.state_dict(),
+                              "epoch": epoch,
+                              "accuracy": accuracy,
+                              "optimizer": optimizer.state_dict()
+                              }
+                torch.save(model_dict, "results/checkpoint.pth")
+
 
 if __name__ == "__main__":
     args = parse_args()
