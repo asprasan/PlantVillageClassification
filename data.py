@@ -6,12 +6,14 @@ from utils import read_8bit_image
 class PlantDataset(Dataset):
 
     def __init__(self,
-                 root_path,
-                 split):
+                 root_path:str|Path,
+                 split:str):
         super().__init__()
         assert split in ["train", "val", "test"]
         
         self.shuffle = not split == "test"
+        if isinstance(root_path, str):
+            root_path = Path(root_path)
         data_txt_path = root_path / f"{split}.txt"
         self.images, self.labels = self.read_data(data_txt_path)
         self.transform = self.get_transform(split)
