@@ -1,5 +1,6 @@
 outs:
-- md5: f232e73669482969702151ba60e9d138.dir
-  nfiles: 11292
+- md5: 1ad9ea6efa36d24a8ebc32c59ff6cf65.dir
+  nfiles: 4630
   hash: md5
   path: PlantVillage
+  size: 83155564
