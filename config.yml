@@ -1,0 +1,5 @@
+batch_size: 2
+lr: 0.0001
+num_epochs: 10
+model: efficientnet_v2_s
+num_classes: 9
