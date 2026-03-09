@@ -51,9 +51,9 @@ def split_data(args):
                 curr_images.extend(sorted(class_folder.glob(f"*.{image_ext}")))
             logger.debug(f"found {len(curr_images)} images for label {label}")
             curr_labels = [label,]*len(curr_images)
-        images.extend(curr_images)
-        labels.extend(curr_labels)
-        label += 1
+            images.extend(curr_images)
+            labels.extend(curr_labels)
+            label += 1
     
     # split data
     logger.info("split train-val and test data")
