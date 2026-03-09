@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 
 from utils import validate_path, get_logger
 
-IMAGE_EXTS = ["jpg", "png", "JPG"]
+IMAGE_EXTS = ["jpg"]
 
 def parser_args():
     parser = argparse.ArgumentParser()
