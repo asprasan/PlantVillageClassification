@@ -139,7 +139,7 @@ class PlantTrainer(BaseTrainer):
     def evaluate_onnx(self, loader):
         total = 0
         correct = 0
-        start_time = time.time()
+        latencies = []
         for k, batch in enumerate(loader):
             tensor, label = batch
             onnx_input = [tensor.numpy(force=True)]
@@ -150,17 +150,17 @@ class PlantTrainer(BaseTrainer):
             )
 
             onnxruntime_input = {input_arg.name: input_value for input_arg, input_value in zip(ort_session.get_inputs(), onnx_input)}
-
             # ONNX Runtime returns a list of outputs
+            start_time = time.time()
             onnxruntime_outputs = ort_session.run(None, onnxruntime_input)[0]
+            latencies.append(time.time() - start_time)
             pred_labels = np.argmax(onnxruntime_outputs, 1)
 
             total += 1
             correct += label.item() == pred_labels[0]
-        end_time = time.time() - start_time
         accuracy = correct / total
         self.logger.info(f"Accuracy with ONNX = {accuracy*100:0.4f}")
-        self.logger.info(f"Inference speed: {total/end_time} frames/second")
+        self.logger.info(f"Inference speed: {total/sum(latencies):0.2f} frames/second")
 
 
     def evaluate_torch(self, loader):
@@ -171,20 +171,21 @@ class PlantTrainer(BaseTrainer):
             self.model.eval()
             total = 0
             correct = 0
-            start_time = time.time()
+            latencies = []
             for k, batch in enumerate(loader):
                 images, labels = batch
                 images = images.to(self.device)
                 labels = labels.to(self.device)
 
+                start_time = time.time()
                 pred = self.model(images)
+                latencies.append(time.time() - start_time)
                 # convert pred to labels and compute accuracy
                 pred = torch.softmax(pred, 1)
                 _, pred_labels = torch.max(pred, 1)
                 total += labels.size(0)
                 correct += (pred_labels == labels).sum().item()
-            end_time = time.time() - start_time
             accuracy = correct / total
 
         self.logger.info(f"Accuracy with Pytorch = {accuracy*100:0.4f}")
-        self.logger.info(f"Inference speed: {total/end_time} frames/second")
+        self.logger.info(f"Inference speed: {total/sum(latencies):0.2f} frames/second")
