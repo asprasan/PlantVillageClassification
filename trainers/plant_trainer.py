@@ -3,8 +3,8 @@ import wandb
 from models import MODEL_REGISTRY, efficientnet
 from trainers import register_trainer
 from trainers.base_trainer import BaseTrainer
-from data import PlantDataset
-from loader import loader
+from data.dataset import PlantDataset
+from data.loader import loader
 
 @register_trainer("plant_trainer")
 class PlantTrainer(BaseTrainer):

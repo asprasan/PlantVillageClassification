@@ -1,7 +1,7 @@
 from pathlib import Path
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-from utils import read_8bit_image
+from utils.utils import read_8bit_image
 
 class PlantDataset(Dataset):
 

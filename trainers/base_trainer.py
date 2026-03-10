@@ -5,7 +5,7 @@ import subprocess
 from typing import Dict, Any
 from contextlib import suppress
 import torch
-from utils import get_logger
+from utils.utils import get_logger
 
 class BaseTrainer(ABC):
 

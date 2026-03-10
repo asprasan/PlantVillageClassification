@@ -1,7 +1,7 @@
 import yaml
 import argparse
 
-from utils import validate_path
+from utils.utils import validate_path
 from trainers import TRAINER_REGISTRY, plant_trainer
 
 def parse_args():
