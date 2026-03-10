@@ -23,7 +23,6 @@ def main(args):
     with open(args.config_path, 'r') as f:
         config = yaml.safe_load(f)
     trainer_class = TRAINER_REGISTRY[config['trainer']]
-    breakpoint()
     trainer = trainer_class(config,
                             args.workers,
                             resume=args.resume,
