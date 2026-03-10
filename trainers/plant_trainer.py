@@ -1,0 +1,130 @@
+import torch
+import wandb
+from models import MODEL_REGISTRY, efficientnet
+from trainers import register_trainer
+from trainers.base_trainer import BaseTrainer
+from data import PlantDataset
+from loader import loader
+
+@register_trainer("plant_trainer")
+class PlantTrainer(BaseTrainer):
+
+    def __init__(self,
+                 config,
+                 workers,
+                 resume=False,
+                 resume_checkpoint=None):
+        super().__init__(config,
+                         workers,
+                         resume=resume,
+                         resume_checkpoint=resume_checkpoint)
+
+    def setup_model(self):
+        model_class = MODEL_REGISTRY[self.config["model"]]
+        # create dataset and dataloader
+        model = model_class(self.config["num_classes"])
+        return model
+
+    def setup_dataloader(self, split):
+        dataset = PlantDataset(self.config['data_path'],
+                               split)
+        return loader(dataset,
+                      self.config["batch_size"],
+                      num_workers=self.workers)
+    
+    def train_one_epoch(self, epoch):
+        total_loss = 0
+
+        self.model.train()
+
+        for k, batch in enumerate(self.train_loader):
+            images, labels = batch
+            images = images.to(device=self.device, memory_format=torch.channels_last)
+            labels = labels.to(self.device)
+
+            with self.amp_autocast:
+                pred = self.model(images)
+                loss = self.loss_fn(pred, labels)
+            
+            self.optimizer.zero_grad()
+            if self.loss_scaler is None:
+                loss.backward()
+                self.optimizer.step()
+            else:
+                self.loss_scaler.scale(loss).backward()
+                self.loss_scaler.step(self.optimizer)
+                self.loss_scaler.update()
+
+            if k%10 == 0:
+                self.logger.info(f"Epoch {epoch}/{self.config['num_epochs']}  Iter {k:05d} : {loss:0.4f}")
+            total_loss += loss
+        return total_loss
+    
+    def validate(self)->float:
+        with torch.no_grad():
+            self.model.eval()
+            total = 0
+            correct = 0
+            for k, batch in enumerate(self.val_loader):
+                images, labels = batch
+                images = images.to(self.device, memory_format=torch.channels_last)
+                labels = labels.to(self.device)
+
+                pred = self.model(images)
+                # convert pred to labels and compute accuracy
+                _, pred_labels = torch.max(pred, 1)
+                total += labels.size(0)
+                correct += (pred_labels == labels).sum().item()
+            accuracy = correct / total
+        return accuracy
+    
+    def export_onnx(self):
+        example_inputs = (torch.randn(1, 3, 224, 224),)
+        onnx_model = torch.onnx.export(self.model,
+                                       example_inputs,
+                                       dynamo=True)
+        onnx_model.save(self.output_path / "checkpoint.onnx")
+        
+
+    def training(self):
+        best_acc = 0.0
+        if self.resume:
+            self.load_model()
+            best_acc = torch.load(self.resume_checkpoint,
+                                  map_location='cpu')['accuracy']
+        with wandb.init(
+            project="plantvillage-classification",
+            notes="Bell-pepper healthy vs diseased",
+            config=self.config
+            ) as run:
+            for epoch in range(self.current_epoch,
+                               self.config["num_epochs"]):
+                # training loop
+                run.config["optimizer"] = "AdamW"
+                run.config["amp"] = self.autocast
+                
+                total_loss = self.train_one_epoch(epoch)
+                run.log({"epoch": epoch,
+                        "loss": total_loss/len(self.val_loader)})
+
+                # validation loop
+                
+                self.logger.info(f"Validating at epoch {epoch}")
+
+                accuracy = self.validate()
+                self.logger.info(f"Accuracy at epoch {epoch} = {accuracy*100}%")
+                
+                run.log({"epoch": epoch,
+                        "accuracy": accuracy*100})
+                if best_acc <= accuracy:
+                    # save the model with the best accuracy
+                    self.logger.info(f"Saving model at epoch {epoch} with best accuracy {accuracy}")
+                    model_dict = {'model': self.model.state_dict(),
+                                "epoch": epoch,
+                                "accuracy": accuracy,
+                                "optimizer_state": self.optimizer.state_dict()
+                                }
+                    torch.save(model_dict, self.output_path / "checkpoint.pth")
+                    best_acc = accuracy
+                    if self.config['export_onnx']:
+                        self.export_onnx()
