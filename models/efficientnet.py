@@ -9,7 +9,7 @@ class EfficientNet_V2_S(nn.Module):
         super().__init__()
         self.num_classes = num_classes
         self.model = models.efficientnet_v2_s(
-            models.EfficientNet_V2_S_Weights.IMAGENET1K_V1
+            weights=models.EfficientNet_V2_S_Weights.IMAGENET1K_V1
             )
         # modify model for number of classes
         self.model.classifier = nn.Sequential(

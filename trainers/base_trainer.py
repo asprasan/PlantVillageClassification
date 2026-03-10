@@ -32,9 +32,7 @@ class BaseTrainer(ABC):
         self.setup_autocast()
 
         self.output_path = Path('results') / self.config["experiment"]
-        if self.output_path.exists():
-            raise ValueError("output directory already exists")
-        self.output_path.mkdir()
+        self.output_path.mkdir(exist_ok=True)
         self.log_experiment_details()
 
     def log_experiment_details(self):
