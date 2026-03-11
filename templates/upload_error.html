@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Plant Village Classification</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1 style="text-align: center">Plant Village Classification</h1>
+        <p style="text-align: center">Error occurred while processing the image.</p>
+        <!-- print error type result -->
+        <p style="text-align: center">{{ error }}</p>
+        <p style="text-align: center"> <a href="/">Try Again</a></p>
+</div>
+{% endblock %}
