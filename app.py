@@ -12,7 +12,11 @@ transform = None
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'JPG', 'JPEG'}
 ALLOWED_MIME_TYPES = {'image/jpeg', 'image/jpg'}  # Add more if needed, e.g., 'image/png'
-
+model_path = Path('weights')
+ort_session = onnxruntime.InferenceSession(
+            model_path / "checkpoint.onnx",
+            providers=["CPUExecutionProvider"]
+)
 def allowed_file(filename):
     # xxx.png
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -80,11 +84,5 @@ def predict():
         return render_template("index.html", result=[])
 
 if __name__ == "__main__":
-    model_path = Path('weights')
-    ort_session = onnxruntime.InferenceSession(
-                model_path / "checkpoint.onnx",
-                providers=["CPUExecutionProvider"]
-    )
-
     # Flask default port is 5000, but Heroku dynamically assigns a port.
     app.run(debug=True)
