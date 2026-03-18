@@ -17,7 +17,15 @@
          <lastmod>2026-03-18</lastmod>
     </url>
     <url>
-         <loc>https://asprasan.github.io/PlantVillageClassification/site/04_evaluation/</loc>
+         <loc>https://asprasan.github.io/PlantVillageClassification/site/04_wandb/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://asprasan.github.io/PlantVillageClassification/site/05_evaluation/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://asprasan.github.io/PlantVillageClassification/site/06_deployment/</loc>
          <lastmod>2026-03-18</lastmod>
     </url>
 </urlset>
