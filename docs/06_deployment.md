@@ -1,4 +1,4 @@
-# Model deployment with Flas on Render
+# Model deployment with Flask on Render
 
 In this section, we will deploy our trained model using Flask on Render. Render is a cloud platform that allows you to easily deploy web applications and APIs.
 
