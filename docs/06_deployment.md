@@ -51,69 +51,11 @@ In this code, we read the uploaded image, transform it into the format required 
 
 We need to create HTML templates for our Flask application. Create a folder called `templates` and add 3 files: `base.html`, `index.html`, and `upload_error.html`.
 
-`base.html` will contain the basic structure of our HTML pages:
+- `base.html` will contain the basic structure of our HTML pages
+- `index.html` will display the prediction results
+- `upload_error.html` will display error messages when the file upload fails
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    {% block head %}{% endblock %}
-</head>
-<body>
-    {% block body %}{% endblock %}
-</body>
-</html>
-```
-
-`index.html` will extend `base.html` and display the prediction results:
-
-```html
-{% extends 'base.html' %}
-
-{% block head %}
-<title>Plant Village Classification</title>
-{% endblock %}
-
-{% block body %}
-<div class="content">
-    <h1 style="text-align: center">Plant Village Classification</h1>
-    {% if result|length <1 %}
-        <p style="text-align: center">No predictions yet. Please upload an image.</p>
-    {% else %}
-        <table>
-
-            <thead>
-                <tr>
-                <th>Label</th>
-                <th>Confidence</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for prediction in result %}
-            <tr>
-                <!-- prediction is a dictionary with label and confidence -->
-                <td> {{ prediction.label }} </td>
-                <td> {{ prediction.confidence }} </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
-    
-    <div class="form">
-        <form action="/" method="POST" enctype="multipart/form-data" id="form">
-            Select image to upload:
-            <input type="file" name="image" id="image">
-            <input type="submit" value="Upload" name="submit">
-        </form>
-    </div>
-</div>
-{% endblock %}
-```
+The contents of the html files can be found on the [repository](https://github.com/asprasan/PlantVillageClassification).
 
 ## Deploying on Render
 
