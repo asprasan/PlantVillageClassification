@@ -137,17 +137,19 @@ class PlantTrainer(BaseTrainer):
                         self.export_onnx()
 
     def evaluate_onnx(self, loader):
+        self.logger.info("Evaluating with ONNXRuntime")
         total = 0
-        correct = 0
         latencies = []
+        all_gt_labels = []
+        all_pred_labels = []
+        ort_session = onnxruntime.InferenceSession(
+            self.output_path / "checkpoint.onnx",
+            providers=["CPUExecutionProvider"]
+        )
         for k, batch in enumerate(loader):
-            tensor, label = batch
+            tensor, labels = batch
             onnx_input = [tensor.numpy(force=True)]
 
-            ort_session = onnxruntime.InferenceSession(
-                self.output_path / "checkpoint.onnx",
-                providers=["CPUExecutionProvider"]
-            )
 
             onnxruntime_input = {input_arg.name: input_value for input_arg, input_value in zip(ort_session.get_inputs(), onnx_input)}
             # ONNX Runtime returns a list of outputs
@@ -155,23 +157,24 @@ class PlantTrainer(BaseTrainer):
             onnxruntime_outputs = ort_session.run(None, onnxruntime_input)[0]
             latencies.append(time.time() - start_time)
             pred_labels = np.argmax(onnxruntime_outputs, 1)
-
-            total += 1
-            correct += label.item() == pred_labels[0]
-        accuracy = correct / total
-        self.logger.info(f"Accuracy with ONNX = {accuracy*100:0.4f}")
+            all_gt_labels.extend(labels.data.cpu().numpy().flatten().tolist())
+            all_pred_labels.extend(pred_labels.flatten().tolist())
+            total += labels.size(0)
+        confusion_mat = self.compute_stats(all_pred_labels, all_gt_labels)
         self.logger.info(f"Inference speed: {total/sum(latencies):0.2f} frames/second")
 
 
     def evaluate_torch(self, loader):
         # load the model
+        self.logger.info("Evaluating with Pytorch")
         self.resume_checkpoint = self.output_path / "checkpoint.pth"
         self.load_model()
         with torch.no_grad():
             self.model.eval()
             total = 0
-            correct = 0
             latencies = []
+            all_gt_labels = []
+            all_pred_labels = []
             for k, batch in enumerate(loader):
                 images, labels = batch
                 images = images.to(self.device)
@@ -183,9 +186,19 @@ class PlantTrainer(BaseTrainer):
                 # convert pred to labels and compute accuracy
                 pred = torch.softmax(pred, 1)
                 _, pred_labels = torch.max(pred, 1)
+                all_gt_labels.extend(labels.data.cpu().numpy().flatten().tolist())
+                all_pred_labels.extend(pred_labels.flatten().tolist())
                 total += labels.size(0)
-                correct += (pred_labels == labels).sum().item()
-            accuracy = correct / total
 
-        self.logger.info(f"Accuracy with Pytorch = {accuracy*100:0.4f}")
+        confusion_mat = self.compute_stats(all_pred_labels, all_gt_labels)
         self.logger.info(f"Inference speed: {total/sum(latencies):0.2f} frames/second")
+    
+    def compute_stats(self, pred_labels, gt_labels):
+        confusion_mat = np.zeros((2,2))
+        for pred_label, gt_label in zip(pred_labels, gt_labels):
+            confusion_mat[gt_label, pred_label] += 1
+        self.logger.info("Confusion matrix: rows indicate GT labels")
+        self.logger.info(f"{confusion_mat}")
+        accuracy = (confusion_mat[0,0] + confusion_mat[1,1])/ np.sum(confusion_mat)
+        self.logger.info(f"Accuracy= {accuracy*100:0.4f}")
+        return confusion_mat
