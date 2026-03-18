@@ -8,11 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://asprasan.github.io/PlantVillageClassification/site/dvc/">
+        <link rel="canonical" href="https://asprasan.github.io/PlantVillageClassification/site/01_dvc/">
       
       
         <link rel="prev" href="..">
       
+      
+        <link rel="next" href="../02_data_prep/">
       
       
         
@@ -345,6 +347,87 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02_data_prep/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setting up model and training loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04_evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation with ONNX and Pytorch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -446,62 +529,62 @@
 <h1 id="data-version-control-with-dvc">Data Version Control with DVC</h1>
 <p>Download the Plant Village classification dataset from Kaggle. Extract the downloaded zip file and place the extracted folder in the root directory of this project. The extracted folder should be named <code>PlantVillage</code>.</p>
 <p>The data would look something like:</p>
-<pre><code>PlantVillage
-├── Potato___Early_blight
-├── Potato___Late_blight
-├── Potato___healthy
-├── Tomato___Bacterial_spot
-├── ...
-├── 
-</code></pre>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>PlantVillage
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── Potato___Early_blight
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── Potato___Late_blight
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── Potato___healthy
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── Tomato___Bacterial_spot
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── ...
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── 
+</span></code></pre></div>
 <p>In this project, we will only use 2 classes of the dataset for simplicity. Remove all directories except <code>Pepper__bell___Bacterial_spot</code> and <code>Pepper__bell___healthy</code>. The final structure of the data should look like:</p>
-<pre><code>PlantVillage
-├── Pepper__bell___Bacterial_spot
-├── Pepper__bell___healthy
-</code></pre>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>PlantVillage
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── Pepper__bell___Bacterial_spot
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── Pepper__bell___healthy
+</span></code></pre></div>
 <h2 id="initialize-dvc-in-the-project-directory">Initialize DVC in the project directory</h2>
 <p>To track the data with DVC, we need to initialize DVC in the project directory. Run the following command in the terminal:</p>
-<pre><code class="language-bash">dvc init # Initialize DVC in the project directory and stages the changes to Git
-git commit -m &quot;Initialize DVC&quot; # Commit the changes to Git
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>dvc<span class="w"> </span>init<span class="w"> </span><span class="c1"># Initialize DVC in the project directory and stages the changes to Git</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Initialize DVC&quot;</span><span class="w"> </span><span class="c1"># Commit the changes to Git</span>
+</span></code></pre></div>
 <p>This command should create a <code>.dvc</code> directory in the project root, which contains the DVC configuration files.</p>
-<pre><code>.dvc
-├── config
-├── .gitignore
-</code></pre>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>.dvc
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── config
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>├── .gitignore
+</span></code></pre></div>
 <h2 id="add-the-data-to-dvc">Add the data to DVC</h2>
 <p>To add the data to DVC, run the following command in the terminal:</p>
-<pre><code class="language-bash">dvc add PlantVillage # Add the data to DVC
-git commit -m &quot;Add PlantVillage dataset to DVC&quot; # Commit the changes to Git
-git push # Push the changes to the remote repository
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>dvc<span class="w"> </span>add<span class="w"> </span>PlantVillage<span class="w"> </span><span class="c1"># Add the data to DVC</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add PlantVillage dataset to DVC&quot;</span><span class="w"> </span><span class="c1"># Commit the changes to Git</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>git<span class="w"> </span>push<span class="w"> </span><span class="c1"># Push the changes to the remote repository</span>
+</span></code></pre></div>
 <p>This command will create the following files in the project root:</p>
-<pre><code>├── PlantVillage.dvc # DVC file that tracks the PlantVillage directory
-├──.dvc/
-    ├── config
-    ├── .gitignore
-    ├── cache/
-        ├── md5/
-        ├── ... # md5 hashes of the files in the PlantVillage directory
-</code></pre>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>├── PlantVillage.dvc # DVC file that tracks the PlantVillage directory
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├──.dvc/
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    ├── config
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    ├── .gitignore
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    ├── cache/
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        ├── md5/
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        ├── ... # md5 hashes of the files in the PlantVillage directory
+</span></code></pre></div>
 <h2 id="add-remote-to-the-dvc-repository">Add remote to the DVC repository</h2>
 <p>To store the data remotely, we need to add a remote to the DVC repository. In this example, we will use Google Drive as the remote storage. Run the following command in the terminal:</p>
-<pre><code class="language-bash">dvc remote add -d myremote /tmp # In this case we use the Unix temporary directory as the remote storage
-dvc push # Push the data to the remote storage
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>dvc<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>-d<span class="w"> </span>myremote<span class="w"> </span>/tmp<span class="w"> </span><span class="c1"># In this case we use the Unix temporary directory as the remote storage</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>dvc<span class="w"> </span>push<span class="w"> </span><span class="c1"># Push the data to the remote storage</span>
+</span></code></pre></div>
 <h2 id="tracking-changes-to-the-data">Tracking changes to the data</h2>
 <p>DVC allows us to track changes to the data over time. If we make any changes to the data, we can run the following command to update the DVC tracking:</p>
-<pre><code class="language-bash">dvc add PlantVillage # Update the DVC tracking for the PlantVillage directory
-git commit -m &quot;Update PlantVillage dataset&quot; # Commit the changes to Git
-git push # Push the changes to the remote repository
-dvc push # Push the updated data to the remote storage
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>dvc<span class="w"> </span>add<span class="w"> </span>PlantVillage<span class="w"> </span><span class="c1"># Update the DVC tracking for the PlantVillage directory</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Update PlantVillage dataset&quot;</span><span class="w"> </span><span class="c1"># Commit the changes to Git</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>git<span class="w"> </span>push<span class="w"> </span><span class="c1"># Push the changes to the remote repository</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>dvc<span class="w"> </span>push<span class="w"> </span><span class="c1"># Push the updated data to the remote storage</span>
+</span></code></pre></div>
 <h2 id="pulling-data-from-the-remote-storage">Pulling data from the remote storage</h2>
 <p>If we want to pull the data from the remote storage to a new machine, we can run the following command in the terminal:</p>
-<pre><code class="language-bash">git clone &lt;repository-url&gt; # Clone the repository to the new machine
-cd &lt;repository-name&gt; # Change to the project directory
-dvc pull # Pull the data from the remote storage
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>git<span class="w"> </span>clone<span class="w"> </span>&lt;repository-url&gt;<span class="w"> </span><span class="c1"># Clone the repository to the new machine</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">cd</span><span class="w"> </span>&lt;repository-name&gt;<span class="w"> </span><span class="c1"># Change to the project directory</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>dvc<span class="w"> </span>pull<span class="w"> </span><span class="c1"># Pull the data from the remote storage</span>
+</span></code></pre></div>
 <p>This command will download the data from the remote storage and place it in the <code>PlantVillage</code> directory in the project root.</p>
 
 

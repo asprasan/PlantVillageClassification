@@ -2,10 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://asprasan.github.io/PlantVillageClassification/site/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
-         <loc>https://asprasan.github.io/PlantVillageClassification/site/dvc/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <loc>https://asprasan.github.io/PlantVillageClassification/site/01_dvc/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://asprasan.github.io/PlantVillageClassification/site/02_data_prep/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://asprasan.github.io/PlantVillageClassification/site/03_model/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://asprasan.github.io/PlantVillageClassification/site/04_evaluation/</loc>
+         <lastmod>2026-03-18</lastmod>
     </url>
 </urlset>

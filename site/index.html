@@ -12,7 +12,7 @@
       
       
       
-        <link rel="next" href="dvc/">
+        <link rel="next" href="01_dvc/">
       
       
         
@@ -320,7 +320,7 @@
   
   
     <li class="md-nav__item">
-      <a href="dvc/" class="md-nav__link">
+      <a href="01_dvc/" class="md-nav__link">
         
   
   
@@ -328,6 +328,87 @@
     
   
     Data Version Control with DVC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="02_data_prep/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setting up model and training loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04_evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation with ONNX and Pytorch
   
 
     
@@ -451,18 +532,18 @@
 <h2 id="getting-started">Getting Started</h2>
 <h3 id="preparing-a-repository">Preparing a repository</h3>
 <p>This entire project will be built in a Git repository. Create an empty repository on GitHub. Don't forget to initialize <code>.gitignore</code> for python files. Now clone the repository to your local machine:</p>
-<pre><code class="language-bash">git clone https://github.com/asprasan/PlantVillageClassification.git
-cd PlantVillageClassification
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/asprasan/PlantVillageClassification.git
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>PlantVillageClassification
+</span></code></pre></div>
 <h3 id="setting-up-the-environment">Setting up the environment</h3>
 <p>Here, we use conda to manage our environment. You can use any other tool you are comfortable with. Create a new conda environment and activate it:</p>
-<pre><code class="language-bash">conda create -n plant python=3.10
-conda activate plant
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>plant<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>conda<span class="w"> </span>activate<span class="w"> </span>plant
+</span></code></pre></div>
 <p>Let's install some of the dependencies we will need for this project:</p>
-<pre><code class="language-bash">python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-python -m pip install dvc wandb
-</code></pre>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>torch<span class="w"> </span>torchvision<span class="w"> </span>--index-url<span class="w"> </span>https://download.pytorch.org/whl/cpu
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>dvc<span class="w"> </span>wandb
+</span></code></pre></div>
 
 
 
