@@ -6,6 +6,10 @@ This project aims to use different tools available in the field of machine learn
 * It is a fairly large dataset, which allows us to train a reasonably good model.
 * The dataset is simple enough to be used as a tutorial for building and deploying a machine learning model.
 
+## Project demo
+
+Try the quick demo on [Render](https://plant-village-kxps.onrender.com/).
+
 ## Goals of this project
 
 The main goals of this project are:
