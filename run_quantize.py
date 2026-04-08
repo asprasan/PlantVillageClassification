@@ -1,11 +1,13 @@
+from pathlib import Path
 import argparse
 import numpy as np
+import torch
 import onnxruntime
 import time
-from onnxruntime.quantization import QuantFormat, QuantType, quantize_static
+from onnxruntime.quantization import QuantFormat, QuantType, quantize_static, CalibrationMethod
 
 from data.quantize_loader import PlantVillageDataReader
-
+from models.efficientnet import EfficientNet_V2_S
 
 def benchmark(model_path):
     session = onnxruntime.InferenceSession(model_path)
@@ -46,6 +48,17 @@ def get_args():
 
 def main():
     args = get_args()
+    model = EfficientNet_V2_S(2)
+    checkpoint_path = Path(args.input_model).parent / "checkpoint.pth"
+    checkpoint = torch.load(checkpoint_path, map_location="cpu")
+    model.load_state_dict(checkpoint['model'], strict=False)
+    model.eval()
+    example_input = torch.randn(1, 3, 224, 224)
+    torch.onnx.export(model,
+                    example_input,
+                    args.input_model,
+                    input_names=["input"],
+                    output_names=["output"])
     input_model_path = args.input_model
     output_model_path = args.output_model
     calibration_dataset_path = args.calibrate_dataset
@@ -53,14 +66,13 @@ def main():
         calibration_dataset_path, input_model_path
     )
 
-    # Calibrate and quantize model
-    # Turn off model optimization during quantization
     quantize_static(
         input_model_path,
         output_model_path,
         dr,
         quant_format=args.quant_format,
         per_channel=args.per_channel,
+        calibrate_method=CalibrationMethod.Percentile,
         weight_type=QuantType.QInt8,
     )
     print("Calibrated and quantized model saved.")

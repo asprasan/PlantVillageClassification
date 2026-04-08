@@ -22,7 +22,7 @@ def _preprocess_images(images_paths: str, height: int, width: int, size_limit=0)
     else:
         batch_filenames = image_names
     unconcatenated_batch_data = []
-
+    count = 0
     for image_name in batch_filenames:
         image_filepath = image_name
         pillow_img = Image.new("RGB", (width, height))
@@ -38,6 +38,8 @@ def _preprocess_images(images_paths: str, height: int, width: int, size_limit=0)
         nhwc_data = numpy.expand_dims(input_data, axis=0)
         nchw_data = nhwc_data.transpose(0, 3, 1, 2)  # ONNX Runtime standard
         unconcatenated_batch_data.append(nchw_data)
+        count += 1
+    print(f"preprocessed {count} images")
     batch_data = numpy.concatenate(
         numpy.expand_dims(unconcatenated_batch_data, axis=0), axis=0
     )
@@ -54,7 +56,7 @@ class PlantVillageDataReader(CalibrationDataReader):
 
         # Convert image to input data
         self.nhwc_data_list = _preprocess_images(
-            calibration_image_txt, height, width, size_limit=0
+            calibration_image_txt, height, width, size_limit=5
         )
         self.input_name = session.get_inputs()[0].name
         self.datasize = len(self.nhwc_data_list)

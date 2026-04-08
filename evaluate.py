@@ -2,7 +2,10 @@ import yaml
 import argparse
 
 from utils.utils import validate_path
-from trainers import TRAINER_REGISTRY, plant_trainer
+from trainers import (TRAINER_REGISTRY,
+                      plant_trainer,
+                      plant_qat_trainer
+)
 
 def parse_args():
     parser = argparse.ArgumentParser("arguments for PlantVillage classification")
