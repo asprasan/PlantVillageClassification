@@ -1,4 +1,5 @@
 import time
+import tracemalloc
 import numpy as np
 import torch
 import wandb
@@ -29,7 +30,7 @@ class PlantQATTrainer(BaseTrainer):
         model = model_class(self.config["num_classes"])
         quantization_config = torch.quantization.get_default_qat_qconfig("fbgemm")
         model.qconfig = quantization_config
-        model.qconfig = torch.ao.quantization.default_qconfig
+        # model.qconfig = torch.ao.quantization.default_qconfig
         torch.quantization.prepare_qat(model, inplace=True)
         return model
 
@@ -129,19 +130,28 @@ class PlantQATTrainer(BaseTrainer):
                                 }
                     torch.save(model_dict, self.output_path / "checkpoint.pth")
                     best_acc = accuracy
-        if self.config['export_onnx']:
-            self.export_onnx()
 
     def evaluate_onnx(self, loader):
-        self.logger.info("Evaluating with ONNXRuntime")
+        self.logger.info("Evaluating with ONNXRuntime int8")
         total = 0
         latencies = []
         all_gt_labels = []
         all_pred_labels = []
+        sess_options = onnxruntime.SessionOptions()
+        sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
+        sess_options.log_severity_level = 0  # Verbose
+        tracemalloc.start()
         ort_session = onnxruntime.InferenceSession(
-            self.output_path / "checkpoint_int8.onnx",
-            providers=["CPUExecutionProvider"]
+            self.output_path / "checkpoint_int8_qop.onnx",
+            providers=["CPUExecutionProvider"],
+            sess_options=sess_options
         )
+        print(ort_session.get_providers()) 
+        load_current, load_peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        self.logger.info("ONNX model loading memory usage")
+        self.logger.info(f"current: {load_current/1024/1024} MB; peak: {load_peak/1024/1024} MB")
+        tracemalloc.start()
         for k, batch in enumerate(loader):
             tensor, labels = batch
             onnx_input = [tensor.numpy(force=True)]
@@ -156,6 +166,10 @@ class PlantQATTrainer(BaseTrainer):
             all_gt_labels.extend(labels.data.cpu().numpy().flatten().tolist())
             all_pred_labels.extend(pred_labels.flatten().tolist())
             total += labels.size(0)
+        inference_current, inference_peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        self.logger.info("ONNX inference memory usage")
+        self.logger.info(f"current: {inference_current/1024/1024}MB; peak: {inference_peak/1024/1024} MB")
         confusion_mat = self.compute_stats(all_pred_labels, all_gt_labels)
         self.logger.info(f"Inference speed: {total/sum(latencies):0.2f} frames/second")
 
@@ -164,13 +178,19 @@ class PlantQATTrainer(BaseTrainer):
         # load the model
         self.logger.info("Evaluating with Pytorch")
         self.resume_checkpoint = self.output_path / "checkpoint.pth"
+        tracemalloc.start()
         self.load_model()
+        load_current, load_peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        self.logger.info("Pytorch model loading memory usage")
+        self.logger.info(f"current: {load_current/1024/1024} MB; peak: {load_peak/1024/1024} MB")
         with torch.no_grad():
             self.model.eval()
             total = 0
             latencies = []
             all_gt_labels = []
             all_pred_labels = []
+            tracemalloc.start()
             for k, batch in enumerate(loader):
                 images, labels = batch
                 images = images.to(self.device)
@@ -185,6 +205,10 @@ class PlantQATTrainer(BaseTrainer):
                 all_gt_labels.extend(labels.data.cpu().numpy().flatten().tolist())
                 all_pred_labels.extend(pred_labels.flatten().tolist())
                 total += labels.size(0)
+            inference_current, inference_peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+            self.logger.info("Pytorch inference memory usage")
+            self.logger.info(f"current: {inference_current/1024/1024} MB; peak: {inference_peak/1024/1024} MB")
 
         confusion_mat = self.compute_stats(all_pred_labels, all_gt_labels)
         self.logger.info(f"Inference speed: {total/sum(latencies):0.2f} frames/second")

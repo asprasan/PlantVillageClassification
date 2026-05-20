@@ -30,16 +30,10 @@ def benchmark(model_path):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_model", required=True, help="input model")
-    parser.add_argument("--output_model", required=True, help="output model")
+    parser.add_argument("input_model_path",
+                        help="path to the directory with pytorch checkpoint")
     parser.add_argument(
         "--calibrate_dataset", default="PlantVillage/val.txt", help="calibration data set"
-    )
-    parser.add_argument(
-        "--quant_format",
-        default=QuantFormat.QDQ,
-        type=QuantFormat.from_string,
-        choices=list(QuantFormat),
     )
     parser.add_argument("--per_channel", default=False, type=bool)
     args = parser.parse_args()
@@ -49,28 +43,29 @@ def get_args():
 def main():
     args = get_args()
     model = EfficientNet_V2_S(2)
-    checkpoint_path = Path(args.input_model).parent / "checkpoint.pth"
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
+    input_model_path = Path(args.input_model_path)
+    torch_model_path = str(input_model_path / "checkpoint.pth")
+    onnx_model_path = str(input_model_path / "checkpoint.onnx")
+    onnx_int8_path = str(input_model_path / "checkpoint_int8.onnx")
+    checkpoint = torch.load(torch_model_path, map_location="cpu")
     model.load_state_dict(checkpoint['model'], strict=False)
     model.eval()
     example_input = torch.randn(1, 3, 224, 224)
     torch.onnx.export(model,
                     example_input,
-                    args.input_model,
+                    onnx_model_path,
                     input_names=["input"],
                     output_names=["output"])
-    input_model_path = args.input_model
-    output_model_path = args.output_model
     calibration_dataset_path = args.calibrate_dataset
     dr = PlantVillageDataReader(
-        calibration_dataset_path, input_model_path
+        calibration_dataset_path, onnx_model_path
     )
 
     quantize_static(
-        input_model_path,
-        output_model_path,
+        onnx_model_path,
+        onnx_int8_path,
         dr,
-        quant_format=args.quant_format,
+        quant_format=QuantFormat.QDQ,
         per_channel=args.per_channel,
         calibrate_method=CalibrationMethod.Percentile,
         weight_type=QuantType.QInt8,
@@ -78,11 +73,10 @@ def main():
     print("Calibrated and quantized model saved.")
 
     print("benchmarking fp32 model...")
-    benchmark(input_model_path)
+    benchmark(onnx_model_path)
 
     print("benchmarking int8 model...")
-    benchmark(output_model_path)
-
+    benchmark(onnx_int8_path)
 
 if __name__ == "__main__":
     main()

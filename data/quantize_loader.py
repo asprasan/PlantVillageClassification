@@ -27,9 +27,10 @@ def _preprocess_images(images_paths: str, height: int, width: int, size_limit=0)
         image_filepath = image_name
         pillow_img = Image.new("RGB", (width, height))
         pillow_img.paste(Image.open(image_filepath).resize((width, height)))
-        input_data = numpy.float32(pillow_img) - numpy.array(
-            [123.68, 116.78, 103.94], dtype=numpy.float32
-        )
+        input_data = numpy.array(pillow_img).astype(numpy.float32)
+        # input_data = input_data - numpy.array(
+        #     [123.68, 116.78, 103.94], dtype=numpy.float32
+        # )
         input_data = input_data / 255
         input_data = input_data - numpy.array([0.485, 0.456, 0.406],
                                               dtype=numpy.float32)
