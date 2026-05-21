@@ -28,7 +28,7 @@ A production-ready computer vision model for plant disease classification, demon
 
 **Key Achievement**: 2x faster inference with ONNX export, maintained at 98% accuracy
 
-> ⚠️ Note: For a deep dive into the latency differences seen between various ONNX quantization approaches, see the [Quantization Approaches Comparison](./README.md) document.
+> ⚠️ Note: For a deep dive into the latency differences seen between various ONNX quantization approaches, see the [Quantization Approaches Comparison](https://asprasan.github.io/PlantVillageClassification/site/07_int8_quant/) document.
 
 ### Model Size
 
