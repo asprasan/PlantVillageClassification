@@ -13,9 +13,9 @@ Measured latency:
 
 | Model     | Quantization Format |  Average Latency |
 | --------- | ------------------- | ---------------: |
-| FP32 ONNX | N/A                 |            89 ms |
-| INT8 ONNX | QDQ                 | slower than FP32 |
-| INT8 ONNX | QOperator           |           967 ms |
+| FP32 ONNX | N/A                 |            58 ms |
+| INT8 ONNX | QDQ                 |           101 ms |
+| INT8 ONNX | QOperator           |           667 ms |
 
 Key observations:
 

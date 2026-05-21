@@ -1,0 +1,1162 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://asprasan.github.io/PlantVillageClassification/site/07_int8_quant/">
+      
+      
+        <link rel="prev" href="../06_deployment/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>Quantization Analysis - Plant Village Classification</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#quantization-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Plant Village Classification" class="md-header__button md-logo" aria-label="Plant Village Classification" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Plant Village Classification
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Quantization Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Plant Village Classification" class="md-nav__button md-logo" aria-label="Plant Village Classification" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Plant Village Classification
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plant Village Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01_dvc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Version Control with DVC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02_data_prep/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setting up model and training loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04_wandb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment tracking with Wandb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05_evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation with ONNX and Pytorch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06_deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model deployment with Flask on Render
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantization Analysis
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantization Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmark Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#main-bottleneck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Bottleneck
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence-from-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence From Profiling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-happens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Happens
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-efficientnet_v2_small-is-particularly-sensitive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why EfficientNet_V2_Small Is Particularly Sensitive
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-vnni-support-was-not-sufficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why VNNI Support Was Not Sufficient
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-fp32-performs-better" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why FP32 Performs Better
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-technical-distinction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Technical Distinction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#onnx-runtime-quantization-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ONNX Runtime Quantization Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#intel-onednn-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intel oneDNN Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#efficientnetv2-paper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EfficientNetV2 Paper
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensorrt-quantization-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TensorRT Quantization Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmark Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#main-bottleneck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Bottleneck
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence-from-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence From Profiling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-happens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Happens
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-efficientnet_v2_small-is-particularly-sensitive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why EfficientNet_V2_Small Is Particularly Sensitive
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-vnni-support-was-not-sufficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why VNNI Support Was Not Sufficient
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-fp32-performs-better" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why FP32 Performs Better
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-technical-distinction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Technical Distinction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#onnx-runtime-quantization-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ONNX Runtime Quantization Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#intel-onednn-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intel oneDNN Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#efficientnetv2-paper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EfficientNetV2 Paper
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensorrt-quantization-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TensorRT Quantization Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="quantization-analysis">Quantization Analysis</h1>
+<h2 id="benchmark-summary">Benchmark Summary</h2>
+<p>Benchmark configuration:</p>
+<ul>
+<li>Model: EfficientNet_V2_Small</li>
+<li>Runtime: ONNX Runtime CPUExecutionProvider</li>
+<li>CPU: Intel Core i3-1005G1</li>
+<li>ISA support: AVX2, AVX-512, VNNI</li>
+</ul>
+<p>Measured latency:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Quantization Format</th>
+<th style="text-align: right;">Average Latency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP32 ONNX</td>
+<td>N/A</td>
+<td style="text-align: right;">58 ms</td>
+</tr>
+<tr>
+<td>INT8 ONNX</td>
+<td>QDQ</td>
+<td style="text-align: right;">101 ms</td>
+</tr>
+<tr>
+<td>INT8 ONNX</td>
+<td>QOperator</td>
+<td style="text-align: right;">667 ms</td>
+</tr>
+</tbody>
+</table>
+<p>Key observations:</p>
+<ul>
+<li>QOperator INT8 latency reached ~10.9× FP32 latency</li>
+<li>INT8 execution did not translate into end-to-end integer execution</li>
+<li>Runtime overhead dominated arithmetic savings</li>
+</ul>
+<p>This result significantly strengthens the conclusion that the slowdown was dominated by runtime execution inefficiencies rather than lack of hardware INT8 capability.</p>
+<hr />
+<h2 id="context">Context</h2>
+<p>The goal of this quantization effort is reduced CPU inference latency for EfficientNet_V2_Small using ONNX Runtime on x86 hardware.</p>
+<p>The experiments focus on:</p>
+<ul>
+<li>static INT8 quantization</li>
+<li>QDQ vs QOperator execution formats</li>
+<li>x64 CPU execution efficiency</li>
+<li>operator-level runtime overhead</li>
+</ul>
+<hr />
+<h2 id="main-bottleneck">Main Bottleneck</h2>
+<p>The primary bottleneck is not INT8 arithmetic.</p>
+<p>The dominant issue is incomplete fusion of the quantized graph into an end-to-end integer execution pipeline.</p>
+<p>ONNX Runtime inserts additional graph operations such as:</p>
+<ul>
+<li>QuantizeLinear</li>
+<li>DequantizeLinear</li>
+<li>Requantization / rescaling</li>
+<li>Cast operations</li>
+</ul>
+<p>These operators introduce:</p>
+<ul>
+<li>additional memory traffic</li>
+<li>tensor format transitions</li>
+<li>synchronization overhead</li>
+<li>reduced kernel fusion opportunities</li>
+</ul>
+<p>The overhead exceeds the computational savings from INT8 arithmetic.</p>
+<hr />
+<h2 id="evidence-from-profiling">Evidence From Profiling</h2>
+<p>Observed operator counts:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Total Ops</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP32</td>
+<td style="text-align: right;">502</td>
+</tr>
+<tr>
+<td>INT8</td>
+<td style="text-align: right;">1848</td>
+</tr>
+</tbody>
+</table>
+<p>The INT8 graph contained approximately:</p>
+<ul>
+<li>3.68× more operators than the FP32 graph</li>
+</ul>
+<p>This is a strong indication that quantization introduced many auxiliary conversion operations.</p>
+<hr />
+<h2 id="why-this-happens">Why This Happens</h2>
+<p>Quantization is not simply:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>FP32 weights → INT8 weights
+</span></code></pre></div>
+<p>Each tensor in the graph also carries:</p>
+<ul>
+<li>scale</li>
+<li>zero point</li>
+<li>quantization range</li>
+</ul>
+<p>A quantized tensor is represented approximately as:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>real_value ≈ scale × (int8_value − zero_point)
+</span></code></pre></div>
+<p>Different operators frequently produce activations with different ranges.</p>
+<p>As a result, intermediate tensors often require:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>INT8 → rescale/requantize → INT8
+</span></code></pre></div>
+<p>or even:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>INT8 → FP32 → INT8
+</span></code></pre></div>
+<p>when the next operator cannot directly consume the current quantization parameters.</p>
+<hr />
+<h2 id="why-efficientnet_v2_small-is-particularly-sensitive">Why EfficientNet_V2_Small Is Particularly Sensitive</h2>
+<p>EfficientNet_V2_Small contains many operations that are less quantization-friendly than plain convolution layers.</p>
+<p>Examples include:</p>
+<ul>
+<li>Sigmoid</li>
+<li>elementwise Multiply</li>
+<li>ReduceMean</li>
+<li>squeeze-and-excitation blocks</li>
+</ul>
+<p>These operators are harder to fuse into pure integer execution pipelines.</p>
+<p>For example, sigmoid is inherently nonlinear:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>σ(x) = 1 / (1 + exp(-x))
+</span></code></pre></div>
+<p>Unlike convolution:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>INT8 × INT8 → INT32 accumulation
+</span></code></pre></div>
+<p>sigmoid and similar operators often require:</p>
+<ul>
+<li>approximation kernels</li>
+<li>requantization</li>
+<li>temporary higher-precision execution</li>
+</ul>
+<p>This increases execution overhead.</p>
+<hr />
+<h2 id="why-vnni-support-was-not-sufficient">Why VNNI Support Was Not Sufficient</h2>
+<p>The CPU supports:</p>
+<ul>
+<li>AVX2</li>
+<li>AVX-512</li>
+<li>VNNI</li>
+</ul>
+<p>These instructions accelerate integer GEMM/convolution operations.</p>
+<p>However, VNNI acceleration only helps significantly when:</p>
+<ul>
+<li>the graph is dominated by Conv/GEMM</li>
+<li>operators are fused efficiently</li>
+<li>execution remains mostly integer-only</li>
+</ul>
+<p>In this case, a large fraction of the graph consisted of:</p>
+<ul>
+<li>activation functions</li>
+<li>elementwise operations</li>
+<li>quantization boundary operations</li>
+</ul>
+<p>Therefore, the theoretical VNNI advantage was not fully utilized.</p>
+<p>An important observation was that:</p>
+<ul>
+<li>QOperator format performed substantially worse than QDQ format on x64</li>
+</ul>
+<p>ONNX Runtime itself emitted the warning:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Please use QuantFormat.QDQ for activation type QInt8 and weight type QInt8.
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Or it will lead to bad performance on x64.
+</span></code></pre></div>
+<p>This indicates that ONNX Runtime's x86 optimization stack is more heavily optimized around:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>QDQ graph fusion
+</span></code></pre></div>
+<p>rather than direct execution of:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>QLinearConv / QOperator graphs
+</span></code></pre></div>
+<p>As a result, many QOperator kernels likely executed through slower fallback implementations.</p>
+<hr />
+<p>The CPU supports:</p>
+<ul>
+<li>AVX2</li>
+<li>AVX-512</li>
+<li>VNNI</li>
+</ul>
+<p>These instructions accelerate integer GEMM/convolution operations.</p>
+<p>However, VNNI acceleration only helps significantly when:</p>
+<ul>
+<li>the graph is dominated by Conv/GEMM</li>
+<li>operators are fused efficiently</li>
+<li>execution remains mostly integer-only</li>
+</ul>
+<p>In this case, a large fraction of the graph consisted of:</p>
+<ul>
+<li>activation functions</li>
+<li>elementwise operations</li>
+<li>quantization boundary operations</li>
+</ul>
+<p>Therefore, the theoretical VNNI advantage was not fully utilized.</p>
+<hr />
+<h2 id="why-fp32-performs-better">Why FP32 Performs Better</h2>
+<p>The FP32 execution path benefits from:</p>
+<ul>
+<li>mature AVX2/oneDNN convolution kernels</li>
+<li>aggressive graph optimization</li>
+<li>fewer graph transitions</li>
+<li>lower operator count</li>
+</ul>
+<p>The INT8 execution path introduces:</p>
+<ul>
+<li>additional quantization operators</li>
+<li>rescaling overhead</li>
+<li>less effective fusion</li>
+<li>memory traffic from intermediate conversions</li>
+</ul>
+<p>As a result, total execution latency increased despite reduced precision.</p>
+<hr />
+<h2 id="important-technical-distinction">Important Technical Distinction</h2>
+<p>A quantized model is not necessarily:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fully integer-executed
+</span></code></pre></div>
+<p>There is a major difference between:</p>
+<ol>
+<li>Quantized weights</li>
+<li>End-to-end fused integer execution</li>
+</ol>
+<p>The latter is required for substantial CPU speedups.</p>
+<hr />
+<h2 id="conclusions">Conclusions</h2>
+<p>The experiments indicate that EfficientNet_V2_Small does not currently achieve efficient end-to-end INT8 execution on ONNX Runtime x64 CPUExecutionProvider.</p>
+<p>Primary contributing factors:</p>
+<ol>
+<li>Significant operator count increase after quantization</li>
+<li>Frequent quantization/dequantization boundaries</li>
+<li>Limited integer fusion for squeeze-and-excitation and activation-heavy blocks</li>
+<li>Runtime overhead exceeding INT8 arithmetic gains</li>
+<li>Poor x64 execution efficiency for QOperator graphs</li>
+</ol>
+<p>Important observations:</p>
+<ul>
+<li>Hardware capability is not the limiting factor</li>
+<li>AVX2, AVX-512, and VNNI support are available</li>
+<li>QOperator execution performs substantially worse than</li>
+</ul>
+<hr />
+<h2 id="references">References</h2>
+<h3 id="onnx-runtime-quantization-documentation">ONNX Runtime Quantization Documentation</h3>
+<p>Discusses QDQ vs QOperator formats and quantization behavior:</p>
+<p><a href="https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html">https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html</a></p>
+<hr />
+<h3 id="intel-onednn-documentation">Intel oneDNN Documentation</h3>
+<p>Describes INT8 acceleration and operator fusion requirements:</p>
+<p><a href="https://oneapi-src.github.io/oneDNN/dev_guide_int8_computations.html">https://oneapi-src.github.io/oneDNN/dev_guide_int8_computations.html</a></p>
+<hr />
+<h3 id="efficientnetv2-paper">EfficientNetV2 Paper</h3>
+<p>Architecture details including squeeze-and-excitation and activation structure:</p>
+<p>Mingxing Tan, Quoc V. Le.
+"EfficientNetV2: Smaller Models and Faster Training"
+<a href="https://arxiv.org/abs/2104.00298">https://arxiv.org/abs/2104.00298</a></p>
+<hr />
+<h3 id="tensorrt-quantization-overview">TensorRT Quantization Overview</h3>
+<p>Discussion of fused integer execution and quantization efficiency:</p>
+<p><a href="https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html#work_quantized_types">https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html#work_quantized_types</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
